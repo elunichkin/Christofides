@@ -39,7 +39,7 @@ Graph findPM(Graph G) {
 	vector<Vertex> vs = G.get_vertexes();
 	vector<Vertex> inds(n);
 	unordered_map<size_t, size_t> p_inds;
-	for (int i = 0; i < n; ++i) {
+	for (size_t i = 0; i < n; ++i) {
 		inds[i] = vs[i];
 		p_inds[inds[i].ind] = i;
 	}
@@ -84,7 +84,7 @@ Graph findPM(Graph G) {
 	for (size_t j = 1; j <= n; ++j)
 		ans[pr[j]] = j;
 	Graph PM(G.get_vertexes());
-	for (int i = 1; i <= n; ++i) {
+	for (size_t i = 1; i <= n; ++i) {
 		Vertex u = inds[i - 1],
 			v = inds[ans[i] - 1];
 		PM.add_Edge(*(new Edge(u, v)));

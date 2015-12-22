@@ -9,12 +9,17 @@ using namespace std;
 struct Vertex {
 	double x, y;
 	size_t ind;
+	double eps = 1e-6;
 
 	Vertex() {}
-	
+
 	Vertex(double x, double y, size_t ind)
 		: x(x), y(y), ind(ind)
 	{}
+
+	bool operator==(const Vertex & other) {
+		return (abs(x - other.x) < eps) && (abs(y - other.y) < eps);
+	}
 };
 
 struct Edge {
@@ -31,6 +36,10 @@ struct Edge {
 
 	bool operator<(const Edge & other) {
 		return cost < other.cost;
+	}
+
+	bool operator==(const Edge & other) {
+		return (u == other.u && v == other.v);
 	}
 
 private:
@@ -58,11 +67,11 @@ public:
 			induce();
 	}
 
-	size_t get_V() {
+	size_t get_V() const {
 		return n;
 	}
 
-	size_t get_E() {
+	size_t get_E() const {
 		return m;
 	}
 
@@ -70,19 +79,19 @@ public:
 		sort(e.begin(), e.end());
 	}
 
-	Vertex get_vertex(size_t ind) {
+	Vertex get_vertex(size_t ind) const {
 		return v[ind];
 	}
 
-	Edge get_edge(size_t ind) {
+	Edge get_edge(size_t ind) const {
 		return e[ind];
 	}
 
-	vector<Vertex> get_vertexes() {
+	vector<Vertex> get_vertexes() const {
 		return v;
 	}
 
-	vector<Edge> get_edges() {
+	vector<Edge> get_edges() const {
 		return e;
 	}
 
@@ -112,5 +121,14 @@ public:
 				adj[v[j].ind].push_back(v[i]);
 				e.emplace_back(v[i], v[j]);
 			}
+	}
+
+	void combine_edges(const Graph & other) {
+		vector<Edge> other_edges = other.get_edges();
+		int sz = other_edges.size();
+		for (size_t i = 0; i < sz; ++i) {
+			if (find(e.begin(), e.end(), other_edges[i]) == e.end())
+				add_Edge(other_edges[i]);
+		}
 	}
 };
