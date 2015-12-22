@@ -146,7 +146,8 @@ void main() {
 	cout << "Finding perfect matching (randomized algorithm): " << (double)(tpm - tmst) / CLOCKS_PER_SEC << " s" << endl;
 	cout << "Finding euler path (non-recursive algorithm): " << (double)(teuler - tpm) / CLOCKS_PER_SEC << " s" << endl;
 	cout << "Finding hamiltonian path (shortcut-path algorithm): " << (double)(tham - teuler) / CLOCKS_PER_SEC << " s" << endl;
-	cout << "Printing path: " << (double)(tprint - tham) / CLOCKS_PER_SEC << " s" << endl;
+	cout << "Printing path: " << (double)(tprint - tham) / CLOCKS_PER_SEC << " s" << endl << endl;
+	cout << "TOTAL algorithm" << (double)(tham - trand) / CLOCKS_PER_SEC << " s" << endl;
 	cout << "TOTAL: " << (double)(tprint - tstart) / CLOCKS_PER_SEC << " s" << endl;
 	system("pause");
 }
