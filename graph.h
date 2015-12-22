@@ -11,6 +11,32 @@ struct Vertex {
 	size_t ind;
 	double eps = 1e-6;
 
+	static double dist(Vertex u, Vertex v) {
+		return sqrt((u.x - v.x) * (u.x - v.x) + (u.y - v.y) * (u.y - v.y));
+	}
+
+	static Vertex nearest(Vertex v, const vector<Vertex> & vs) {
+		int n = vs.size();
+		Vertex nearest = vs[0];
+		double dist = DBL_MAX;
+		for (int i = 0; i < n; ++i) {
+			Vertex cur = vs[i];
+			if (v == cur)
+				continue;
+			double cur_dist = Vertex::dist(v, cur);
+			if (cur_dist < dist) {
+				nearest = cur;
+				dist = cur_dist;
+			}
+		}
+		return nearest;
+	}
+
+	static bool adm(Vertex v, Vertex u, Vertex vv, Vertex uu, double eps) {
+		double dist = Vertex::dist(u, v);
+		return dist <= eps * min(Vertex::dist(u, uu), Vertex::dist(v, vv));
+	}
+
 	Vertex() {}
 
 	Vertex(double x, double y, size_t ind)
@@ -31,7 +57,7 @@ struct Edge {
 	Edge(Vertex u, Vertex v)
 		: u(u), v(v)
 	{
-		cost = dist(u, v);
+		cost = Vertex::dist(u, v);
 	}
 
 	bool operator<(const Edge & other) {
@@ -40,11 +66,6 @@ struct Edge {
 
 	bool operator==(const Edge & other) {
 		return (u == other.u && v == other.v);
-	}
-
-private:
-	double dist(Vertex u, Vertex v) {
-		return sqrt((u.x - v.x) * (u.x - v.x) + (u.y - v.y) * (u.y - v.y));
 	}
 };
 
