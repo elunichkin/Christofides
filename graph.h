@@ -84,7 +84,7 @@ public:
 		: v(0), e(0), n(0), m(0)
 	{}
 
-	Graph(const Graph & other)
+	Graph(const Graph & other, bool only_v)
 	{
 		v = other.get_vertexes();
 		n = v.size();
@@ -176,7 +176,7 @@ public:
 	}
 
 	void induce() {
-		size_t m = n * (n - 1) / 2;
+		m = n * (n - 1) / 2;
 		e.reserve(n);
 		for (size_t i = 0; i < n; ++i)
 			for (size_t j = i + 1; j < n; ++j) {
@@ -193,6 +193,13 @@ public:
 			if (find(e.begin(), e.end(), other_edges[i]) == e.end())
 				add_Edge(other_edges[i]);
 		}
+	}
+
+	void print_graph() const {
+		cout << "Vertexes:" << endl;
+		for (int i = 0; i < n; ++i)
+			cout << v[i].ind << " " << v[i].x << " " << v[i].y << endl;
+		cout << endl << "Start:" << endl << start.ind << endl << "Finish:" << endl << finish.ind << endl << endl;
 	}
 
 	void print_path() const {

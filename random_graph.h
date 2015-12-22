@@ -13,11 +13,11 @@ double random_double(double dMin, double dMax) {
 }
 
 Graph random() {
-	int n = rand() % 100 + 1;
+	int n = rand() % 10 + 1;
 	vector<Vertex> v(n);
 	for (int i = 0; i < n; ++i) {
-		v[i].x = random_double(-1e6, 1e6);
-		v[i].y = random_double(-1e6, 1e6);
+		v[i].x = random_double(-100, 100);
+		v[i].y = random_double(-100, 100);
 		v[i].ind = i;
 	}
 	Vertex start = v.at(rand() % n),

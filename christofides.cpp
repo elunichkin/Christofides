@@ -8,7 +8,7 @@ Graph MST(Graph G) {
 	size_t n = G.get_V(),
 		m = G.get_E();
 	DSU dsu(n);
-	Graph MST(G);
+	Graph MST(G, true);
 	for (size_t i = 0; i < m; ++i) {
 		Edge cur = G.get_edge(i);
 		size_t u = cur.u.ind,
@@ -35,7 +35,7 @@ Graph odd(Graph G) {
 }
 
 Graph findPM(Graph G) {
-	Graph PM;
+	Graph PM(G, true);
 	vector<Vertex> V = G.get_vertexes();
 	vector<Vertex> W(V);
 	size_t n = G.get_V();
@@ -63,21 +63,31 @@ Graph findPM(Graph G) {
 }
 
 Graph EP(Graph G) {
-	Graph EP(G);
+	Graph EP(G, true);
+	int n = G.get_V();
 	unordered_map<size_t, vector<size_t>> adj = G.get_adjacent_list();
+	vector<vector<bool>> a(n, vector<bool>(n));
+	for (auto i = adj.begin(); i != adj.end(); ++i)
+		for (size_t j = 0; j < (i->second).size(); ++j)
+			a[i->first][i->second[j]] = a[i->second[j]][i->first] = true;
 	vector<size_t> ep;
 	stack<size_t> st;
-	size_t u = adj.begin()->first;
+	size_t u = 0;
+	st.push(u);
 	while (!st.empty()) {
 		size_t v = st.top();
-		if (!adj[v].size()) {
+		size_t i;
+		for (i = 0; i < n; ++i)
+			if (a[v][i])
+				break;
+		if (i == n) {
 			ep.push_back(v);
 			st.pop();
 		}
 		else {
-			size_t w = adj[v].back();
-			adj[v].pop_back();
-			st.push(w);
+			a[v][i] = false;
+			a[i][v] = false;
+			st.push(i);
 		}
 	}
 	EP.set_path(ep);
@@ -90,7 +100,7 @@ Graph EP(Graph G) {
 }
 
 Graph HP(Graph EP) {
-	Graph HP(EP);
+	Graph HP(EP, true);
 	vector<size_t> ep = EP.get_path();
 	size_t n = ep.size();
 	vector<bool> used(n, false);
@@ -120,5 +130,7 @@ void main() {
 	H.combine_edges(M);
 	Graph euler = EP(H);
 	Graph hamiltonian = HP(euler);
+	hamiltonian.print_graph();
 	hamiltonian.print_path();
+	system("pause");
 }
