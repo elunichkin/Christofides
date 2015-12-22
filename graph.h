@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 #include <cmath>
 #include <unordered_map>
@@ -70,22 +71,31 @@ struct Edge {
 };
 
 class Graph {
+	Vertex start, finish;
 	vector<Vertex> v;
 	vector<Edge> e;
-	unordered_map<size_t, vector<Vertex>> adj;
+	unordered_map<size_t, vector<size_t>> adj;
 	size_t n, m;
+	
+	vector<size_t> path;
 
 public:
 	Graph()
 		: v(0), e(0), n(0), m(0)
 	{}
 
-	Graph(vector<Vertex> vert, bool ind = false)
-		: v(vert)
+	Graph(const Graph & other)
 	{
-		n = vert.size();
-		if (ind)
-			induce();
+		v = other.get_vertexes();
+		n = v.size();
+		start = other.get_start();
+		finish = other.get_finish();
+	}
+
+	Graph(vector<Vertex> vert, Vertex start, Vertex finish)
+		: v(vert), n(vert.size()), start(start), finish(finish)
+	{
+		induce();
 	}
 
 	size_t get_V() const {
@@ -94,6 +104,14 @@ public:
 
 	size_t get_E() const {
 		return m;
+	}
+
+	Vertex get_start() const {
+		return start;
+	}
+
+	Vertex get_finish() const {
+		return finish;
 	}
 
 	void sort_e() {
@@ -120,8 +138,14 @@ public:
 		e.push_back(edg);
 		Vertex u = edg.u,
 			v = edg.v;
-		adj[u.ind].push_back(v);
-		adj[v.ind].push_back(u);
+		adj[u.ind].push_back(v.ind);
+		adj[v.ind].push_back(u.ind);
+	}
+
+	void add_Edge(Vertex u, Vertex v) {
+		e.emplace_back(u, v);
+		adj[u.ind].push_back(v.ind);
+		adj[v.ind].push_back(u.ind);
 	}
 
 	void add_Vertex(Vertex vert) {
@@ -133,23 +157,48 @@ public:
 		return adj[v.ind].size();
 	}
 
+	unordered_map<size_t, vector<size_t>> get_adjacent_list() const {
+		return adj;
+	}
+
+	Vertex get_vertex_by_ind(size_t ind) const {
+		for (size_t i = 0; i < n; ++i)
+			if (v[i].ind == ind)
+				return v[i];
+	}
+
+	void set_path(vector<size_t> p) {
+		path = path;
+	}
+
+	vector<size_t> get_path() const {
+		return path;
+	}
+
 	void induce() {
 		size_t m = n * (n - 1) / 2;
 		e.reserve(n);
 		for (size_t i = 0; i < n; ++i)
 			for (size_t j = i + 1; j < n; ++j) {
-				adj[v[i].ind].push_back(v[j]);
-				adj[v[j].ind].push_back(v[i]);
+				adj[v[i].ind].push_back(v[j].ind);
+				adj[v[j].ind].push_back(v[i].ind);
 				e.emplace_back(v[i], v[j]);
 			}
 	}
 
 	void combine_edges(const Graph & other) {
 		vector<Edge> other_edges = other.get_edges();
-		int sz = other_edges.size();
+		size_t sz = other_edges.size();
 		for (size_t i = 0; i < sz; ++i) {
 			if (find(e.begin(), e.end(), other_edges[i]) == e.end())
 				add_Edge(other_edges[i]);
+		}
+	}
+
+	void print_path() const {
+		for (int i = 0; i < path.size(); ++i) {
+			Vertex cur = get_vertex_by_ind(path[i]);
+			cout << cur.ind << " " << cur.x << " " << cur.y << endl;
 		}
 	}
 };

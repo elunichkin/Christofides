@@ -20,5 +20,7 @@ Graph random() {
 		v[i].y = random_double(-1e6, 1e6);
 		v[i].ind = i;
 	}
-	return Graph(v, true);
+	Vertex start = v.at(rand() % n),
+		finish = v.at(rand() % n);
+	return Graph(v, start, finish);
 }
