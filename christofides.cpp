@@ -122,15 +122,31 @@ Graph HP(Graph EP) {
 }
 
 void main() {
+	clock_t tstart = clock();
 	randomize();
 	Graph G = random();
+	clock_t trand = clock();
 	Graph mst = MST(G);
+	clock_t tmst = clock();
 	Graph M = findPM(odd(mst));
 	Graph H = mst;
 	H.combine_edges(M);
+	clock_t tpm = clock();
 	Graph euler = EP(H);
+	clock_t teuler = clock();
 	Graph hamiltonian = HP(euler);
+	clock_t tham = clock();
 	hamiltonian.print_graph();
 	hamiltonian.print_path();
+	clock_t tprint = clock();
+	cout << endl << "Time:" << endl;
+	cout << "# of vertexes: " << G.get_V() << endl;
+	cout << "Building random graph: " << (double)(trand - tstart) / CLOCKS_PER_SEC << " s" << endl;
+	cout << "Finding MST (Kruskal's algorithm): " << (double)(tmst - trand) / CLOCKS_PER_SEC << " s" << endl;
+	cout << "Finding perfect matching (randomized algorithm): " << (double)(tpm - tmst) / CLOCKS_PER_SEC << " s" << endl;
+	cout << "Finding euler path (non-recursive algorithm): " << (double)(teuler - tpm) / CLOCKS_PER_SEC << " s" << endl;
+	cout << "Finding hamiltonian path (shortcut-path algorithm): " << (double)(tham - teuler) / CLOCKS_PER_SEC << " s" << endl;
+	cout << "Printing path: " << (double)(tprint - tham) / CLOCKS_PER_SEC << " s" << endl;
+	cout << "TOTAL: " << (double)(tprint - tstart) / CLOCKS_PER_SEC << " s" << endl;
 	system("pause");
 }
