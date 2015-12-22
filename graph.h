@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cmath>
+#include <unordered_map>
 #include <algorithm>
 using namespace std;
 
@@ -41,9 +42,14 @@ private:
 class Graph {
 	vector<Vertex> v;
 	vector<Edge> e;
+	unordered_map<size_t, vector<Vertex>> adj;
 	size_t n, m;
 
 public:
+	Graph()
+		: v(0), e(0), n(0), m(0)
+	{}
+
 	Graph(size_t size)
 		: v(size), e(0), n(size), m(0)
 	{}
@@ -52,11 +58,7 @@ public:
 		: v(vert)
 	{
 		n = vert.size();
-		m = n * (n - 1) / 2;
-		e.reserve(m);
-		for (size_t i = 0; i < n; ++i)
-			for (size_t j = 0; j < m; ++j)
-				e.emplace_back(v[i], v[j]);
+		induce();
 	}
 
 	size_t get_V() {
@@ -81,5 +83,29 @@ public:
 
 	void add_Edge(Edge edg) {
 		e.push_back(edg);
+		Vertex u = edg.u,
+			v = edg.v;
+		adj[u.ind].push_back(v);
+		adj[v.ind].push_back(u);
+	}
+
+	void add_Vertex(Vertex vert) {
+		v.push_back(vert);
+		++n;
+	}
+
+	int get_adj_size(Vertex v) {
+		return adj[v.ind].size();
+	}
+
+	void induce() {
+		size_t m = n * (n - 1) / 2;
+		e.reserve(n);
+		for (size_t i = 0; i < n; ++i)
+			for (size_t j = i + 1; j < n; ++j) {
+				adj[v[i].ind].push_back(v[j]);
+				adj[v[j].ind].push_back(v[i]);
+				e.emplace_back(v[i], v[j]);
+			}
 	}
 };

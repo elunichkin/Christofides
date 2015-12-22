@@ -19,6 +19,19 @@ Graph MST(Graph G) {
 	return MST;
 }
 
+Graph odd(Graph G) {
+	int n = G.get_V();
+	Graph O;
+	for (int i = 0; i < n; ++i) {
+		Vertex v = G.get_vertex(i);
+		int deg = G.get_adj_size(v);
+		if (deg % 2)
+			O.add_Vertex(v);
+	}
+	O.induce();
+	return O;
+}
+
 void main() {
 
 }
