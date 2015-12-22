@@ -72,7 +72,7 @@ Graph EP(Graph G) {
 			a[i->first][i->second[j]] = a[i->second[j]][i->first] = true;
 	vector<size_t> ep;
 	stack<size_t> st;
-	size_t u = 0;
+	size_t u = EP.get_start().ind;
 	st.push(u);
 	while (!st.empty()) {
 		size_t v = st.top();

@@ -168,7 +168,7 @@ public:
 	}
 
 	void set_path(vector<size_t> p) {
-		path = path;
+		path = p;
 	}
 
 	vector<size_t> get_path() const {
@@ -198,14 +198,14 @@ public:
 	void print_graph() const {
 		cout << "Vertexes:" << endl;
 		for (int i = 0; i < n; ++i)
-			cout << v[i].ind << " " << v[i].x << " " << v[i].y << endl;
-		cout << endl << "Start:" << endl << start.ind << endl << "Finish:" << endl << finish.ind << endl << endl;
+			cout << v[i].ind + 1 << " " << v[i].x << " " << v[i].y << endl;
+		cout << endl << "Start:" << endl << start.ind + 1 << endl << "Finish:" << endl << finish.ind + 1<< endl << endl;
 	}
 
 	void print_path() const {
 		for (int i = 0; i < path.size(); ++i) {
 			Vertex cur = get_vertex_by_ind(path[i]);
-			cout << cur.ind << " " << cur.x << " " << cur.y << endl;
+			cout << cur.ind + 1 << " " << cur.x << " " << cur.y << endl;
 		}
 	}
 };
