@@ -50,15 +50,12 @@ public:
 		: v(0), e(0), n(0), m(0)
 	{}
 
-	Graph(size_t size)
-		: v(size), e(0), n(size), m(0)
-	{}
-
-	Graph(vector<Vertex> vert)
+	Graph(vector<Vertex> vert, bool ind = false)
 		: v(vert)
 	{
 		n = vert.size();
-		induce();
+		if (ind)
+			induce();
 	}
 
 	size_t get_V() {
@@ -79,6 +76,14 @@ public:
 
 	Edge get_edge(size_t ind) {
 		return e[ind];
+	}
+
+	vector<Vertex> get_vertexes() {
+		return v;
+	}
+
+	vector<Edge> get_edges() {
+		return e;
 	}
 
 	void add_Edge(Edge edg) {
