@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Random;
+import java.io.PrintWriter;
+import java.util.*;
 
 public class Christofides {
     public static void main(String[] args) {
@@ -9,7 +7,27 @@ public class Christofides {
     }
 
     private void run() {
+        RandomGraph randomGraph = new RandomGraph();
+        ArrayList<Vertex> vertices = randomGraph.randomVertices(10, 10.0);
+        Random random = new Random();
+        int start = random.nextInt(vertices.size());
+        int finish = start;
+        do {
+            finish = random.nextInt(vertices.size());
+        } while (finish == start);
 
+        Graph G = new Graph(vertices, start, finish);
+        G.printGraph();
+
+        Graph MST = findMST(G);
+        Graph PM = findPM(findWrongVertices(MST));
+        MST.addEdges(PM);
+        ArrayList<Vertex> HP = findHP(findEP(MST), MST);
+
+        System.out.println("Hamiltonian path:");
+        for (Vertex v : HP) {
+            System.out.print((v.ind + 1) + " ");
+        }
     }
 
     private Graph findMST(Graph G) {
@@ -66,7 +84,7 @@ public class Christofides {
         Random random = new Random();
 
         int k = (int)Math.ceil(Math.sqrt((double)G.getN()));
-        double eps = 1.0 / k;
+        double eps = (1 + 1.0 / k) * (1 + 1.0 / k);
 
         ArrayList<Vertex> V = G.getVertices();
         ArrayList<Vertex> W = new ArrayList<>(V);
@@ -93,5 +111,57 @@ public class Christofides {
         }
 
         return PM;
+    }
+
+    private ArrayList<Integer> findEP(Graph G) {
+        int n = G.getN();
+        int[][] adj = new int[n][n];
+
+        for (Edge e : G.getEdges()) {
+            ++adj[e.u.ind][e.v.ind];
+            ++adj[e.v.ind][e.u.ind];
+        }
+
+        ArrayList<Integer> eulerPath = new ArrayList<>();
+        Stack<Integer> st = new Stack<>();
+        st.push(G.getStart());
+
+        while (!st.isEmpty()) {
+            int v = st.peek();
+            int i;
+            for (i = 0; i < n; ++i) {
+                if (adj[v][i] != 0) {
+                    break;
+                }
+            }
+            if (i == n) {
+                eulerPath.add(v);
+                st.pop();
+            } else {
+                --adj[v][i];
+                --adj[i][v];
+                st.push(i);
+            }
+        }
+
+        return eulerPath;
+    }
+
+    private ArrayList<Vertex> findHP(ArrayList<Integer> eulerPath, Graph G) {
+        int n = eulerPath.size();
+        Collections.reverse(eulerPath);
+        boolean[] used = new boolean[n];
+        ArrayList<Vertex> hamiltonianPath = new ArrayList<>();
+
+        for (int v : eulerPath) {
+            if (!used[v] && v != G.getFinish()) {
+                hamiltonianPath.add(G.getVertexByInd(v));
+            }
+            used[v] = true;
+        }
+
+        hamiltonianPath.add(G.getVertexByInd(G.getFinish()));
+
+        return hamiltonianPath;
     }
 }
