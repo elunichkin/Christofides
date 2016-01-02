@@ -94,6 +94,12 @@ public class Graph {
         return v.ind == finish;
     }
 
+    public void addEdges(ArrayList<Edge> edges) {
+        for (Edge edge : edges) {
+            addEdge(edge);
+        }
+    }
+
     public void printGraph() {
         System.out.println("Vertices:");
         for (Vertex vertex : v) {

@@ -1,20 +1,21 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 
 public class GraphPanel extends JPanel {
     private int maxCoord;
     private ArrayList<Vertex> vertices;
-    private ArrayList<Edge> edges;
-    private Color color;
-    private int index;
+    private HashMap<Edge, Color> edges;
     private int start, finish;
 
-    public GraphPanel(int mc) {
+    public GraphPanel(Graph G, int mc) {
         this.setOpaque(true);
         this.maxCoord = mc;
-        this.color = Color.black;
+        this.vertices = G.getVertices();
+        this.edges = new HashMap<>();
+        this.start = G.getStart();
+        this.finish = G.getFinish();
     }
 
     @Override
@@ -34,73 +35,70 @@ public class GraphPanel extends JPanel {
 
         //Vertices:
         g2d.setPaint(Color.black);
+        int size;
         for (Vertex v : vertices) {
             if (v.ind == start) {
                 g2d.setPaint(Color.green);
+                size = 3;
             } else if (v.ind == finish) {
                 g2d.setPaint(Color.red);
+                size = 3;
             } else {
                 g2d.setPaint(Color.black);
+                size = 2;
             }
-            g2d.fillOval((int)((v.x + (double)maxCoord) / stepX) - 2, (int)(((double)maxCoord - v.y) / stepY) - 2, 4, 4);
+            g2d.fillOval((int)((v.x + (double)maxCoord) / stepX) - size, (int)(((double)maxCoord - v.y) / stepY) - size,
+                    2 * size, 2 * size);
         }
 
         //Edges:
-        for (int i = 0; i < index; ++i) {
-            Edge e = edges.get(i);
-            g2d.drawLine((int)((e.u.x + (double)maxCoord) / stepX), (int)(((double)maxCoord - e.u.y) / stepY),
-                    (int)((e.v.x + (double)maxCoord) / stepX), (int)(((double)maxCoord - e.v.y) / stepY));
-        }
-        g2d.setPaint(color);
-        for (int i = index; i < edges.size(); ++i) {
-            Edge e = edges.get(i);
+        for (HashMap.Entry<Edge, Color> entry : edges.entrySet()) {
+            g2d.setPaint(entry.getValue());
+            Edge e = entry.getKey();
             g2d.drawLine((int)((e.u.x + (double)maxCoord) / stepX), (int)(((double)maxCoord - e.u.y) / stepY),
                     (int)((e.v.x + (double)maxCoord) / stepX), (int)(((double)maxCoord - e.v.y) / stepY));
         }
     }
 
-    public void changeGraph(Graph G, Color col, int ind) {
-        vertices = G.getVertices();
-        edges = G.getEdges();
-        color = col;
-        index = ind;
-        start = G.getStart();
-        finish = G.getFinish();
+    public void addEdge(Edge edge, Color color, boolean replace) {
+        if (replace) {
+            removeEdge(edge);
+        }
+        edges.put(edge, color);
+        repaint();
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void drawPath(ArrayList<Vertex> vs, Color color) {
+        for (int i = 0; i < vs.size() - 1; ++i) {
+            addEdge(new Edge(vs.get(i), vs.get(i + 1)), color, true);
+        }
+    }
+
+    public void finalize(ArrayList<Vertex> vs) {
+        edges.clear();
+        for (int i = 0; i < vs.size() - 1; ++i) {
+            edges.put(new Edge(vs.get(i), vs.get(i + 1)), Color.black);
+        }
         repaint();
     }
 
-    public void changeGraph(Graph G, Color col) {
-        changeGraph(G, col, 0);
-    }
-
-    public void changeGraph(Graph G) {
-        changeGraph(G, Color.black);
-    }
-
-    public void drawPath(Graph G, ArrayList<Vertex> path) {
-        vertices = G.getVertices();
-        color = Color.red;
-        index = 0;
-
-        edges = new ArrayList<>();
-        for (int i = 0; i < path.size() - 1; ++i) {
-            edges.add(new Edge(path.get(i), path.get(i + 1)));
-
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
+    private void removeEdge(Edge edge) {
+        ArrayList<Edge> toRemove = new ArrayList<>();
+        for (Edge e : edges.keySet()) {
+            if (e.u.ind == edge.u.ind && e.v.ind == edge.v.ind) {
+                toRemove.add(e);
             }
-
-            repaint();
+            if (e.u.ind == edge.v.ind && e.v.ind == edge.u.ind) {
+                toRemove.add(e);
+            }
         }
-    }
-
-    public void drawIntegerPath(Graph G, ArrayList<Integer> path) {
-        ArrayList<Vertex> vertexPath = new ArrayList<>();
-        for (int v : path) {
-            vertexPath.add(G.getVertexByInd(v));
+        for (Edge e : toRemove) {
+            edges.remove(e);
         }
-        drawPath(G, vertexPath);
     }
 }

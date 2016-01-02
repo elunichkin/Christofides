@@ -18,25 +18,21 @@ public class Christofides {
             finish = random.nextInt(vertices.size());
         } while (finish == start);
 
-        graphFrame = new GraphFrame(100);
-        graphFrame.setVisible(true);
-
         Graph G = new Graph(vertices, start, finish);
         G.printGraph();
+
+        graphFrame = new GraphFrame(G, 100);
+        graphFrame.setVisible(true);
 
         Graph MST = findMST(G);
         int E = MST.getM();
 
+        graphFrame.sleep();
+
         Graph PM = findPM(findWrongVertices(MST));
-        for (Edge e : PM.getEdges()) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-            MST.addEdge(e);
-            graphFrame.getGraphPanel().changeGraph(MST, Color.blue, E);
-        }
+        MST.addEdges(PM.getEdges());
+
+        graphFrame.sleep();
 
         ArrayList<Vertex> HP = findHP(findEP(MST), MST);
 
@@ -48,7 +44,6 @@ public class Christofides {
 
     private Graph findMST(Graph G) {
         Graph mst = new Graph(G);
-        graphFrame.getGraphPanel().changeGraph(mst);
         DSU dsu = new DSU(G.getN());
         ArrayList<Edge> edges = G.getEdges();
         Collections.sort(edges);
@@ -57,14 +52,9 @@ public class Christofides {
             int u = e.u.ind;
             int v = e.v.ind;
             if (dsu.find(u) != dsu.find(v)) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
                 dsu.unite(u, v);
                 mst.addEdge(e);
-                graphFrame.getGraphPanel().changeGraph(mst);
+                graphFrame.getGraphPanel().addEdge(e, Color.black, false);
             }
         }
 
@@ -119,7 +109,9 @@ public class Christofides {
             Vertex vv = Vertex.getNearest(v, V);
             Vertex uu = Vertex.getNearest(u, V);
             if (Vertex.admissible(v, u, vv, uu, eps)) {
-                PM.addEdge(new Edge(u, v));
+                Edge e = new Edge(u, v);
+                PM.addEdge(e);
+                graphFrame.getGraphPanel().addEdge(e, Color.blue, false);
                 W.remove(u);
                 W.remove(v);
             }
@@ -136,7 +128,7 @@ public class Christofides {
         return PM;
     }
 
-    private ArrayList<Integer> findEP(Graph G) {
+    private ArrayList<Vertex> findEP(Graph G) {
         int n = G.getN();
         int[][] adj = new int[n][n];
 
@@ -145,7 +137,7 @@ public class Christofides {
             ++adj[e.v.ind][e.u.ind];
         }
 
-        ArrayList<Integer> eulerPath = new ArrayList<>();
+        ArrayList<Vertex> eulerPath = new ArrayList<>();
         Stack<Integer> st = new Stack<>();
         st.push(G.getStart());
 
@@ -158,7 +150,7 @@ public class Christofides {
                 }
             }
             if (i == n) {
-                eulerPath.add(v);
+                eulerPath.add(G.getVertexByInd(v));
                 st.pop();
             } else {
                 --adj[v][i];
@@ -167,24 +159,19 @@ public class Christofides {
             }
         }
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-
-        graphFrame.getGraphPanel().drawIntegerPath(G, eulerPath);
+        graphFrame.getGraphPanel().drawPath(eulerPath, Color.red);
 
         return eulerPath;
     }
 
-    private ArrayList<Vertex> findHP(ArrayList<Integer> eulerPath, Graph G) {
+    private ArrayList<Vertex> findHP(ArrayList<Vertex> eulerPath, Graph G) {
         int n = eulerPath.size();
         Collections.reverse(eulerPath);
         boolean[] used = new boolean[n];
         ArrayList<Vertex> hamiltonianPath = new ArrayList<>();
 
-        for (int v : eulerPath) {
+        for (Vertex vert : eulerPath) {
+            int v = vert.ind;
             if (!used[v] && v != G.getFinish()) {
                 hamiltonianPath.add(G.getVertexByInd(v));
             }
@@ -193,13 +180,8 @@ public class Christofides {
 
         hamiltonianPath.add(G.getVertexByInd(G.getFinish()));
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-
-        graphFrame.getGraphPanel().drawPath(G, hamiltonianPath);
+        graphFrame.getGraphPanel().drawPath(hamiltonianPath, Color.black);
+        graphFrame.getGraphPanel().finalize(hamiltonianPath);
 
         return hamiltonianPath;
     }
