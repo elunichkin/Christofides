@@ -1,4 +1,4 @@
-import java.io.PrintWriter;
+import java.awt.*;
 import java.util.*;
 
 public class Christofides {
@@ -6,9 +6,11 @@ public class Christofides {
         new Christofides().run();
     }
 
+    private GraphFrame graphFrame;
+
     private void run() {
         RandomGraph randomGraph = new RandomGraph();
-        ArrayList<Vertex> vertices = randomGraph.randomVertices(10, 10.0);
+        ArrayList<Vertex> vertices = randomGraph.randomVertices(100, 100.0);
         Random random = new Random();
         int start = random.nextInt(vertices.size());
         int finish = start;
@@ -16,12 +18,26 @@ public class Christofides {
             finish = random.nextInt(vertices.size());
         } while (finish == start);
 
+        graphFrame = new GraphFrame(100);
+        graphFrame.setVisible(true);
+
         Graph G = new Graph(vertices, start, finish);
         G.printGraph();
 
         Graph MST = findMST(G);
+        int E = MST.getM();
+
         Graph PM = findPM(findWrongVertices(MST));
-        MST.addEdges(PM);
+        for (Edge e : PM.getEdges()) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+            MST.addEdge(e);
+            graphFrame.getGraphPanel().changeGraph(MST, Color.blue, E);
+        }
+
         ArrayList<Vertex> HP = findHP(findEP(MST), MST);
 
         System.out.println("Hamiltonian path:");
@@ -32,6 +48,7 @@ public class Christofides {
 
     private Graph findMST(Graph G) {
         Graph mst = new Graph(G);
+        graphFrame.getGraphPanel().changeGraph(mst);
         DSU dsu = new DSU(G.getN());
         ArrayList<Edge> edges = G.getEdges();
         Collections.sort(edges);
@@ -40,8 +57,14 @@ public class Christofides {
             int u = e.u.ind;
             int v = e.v.ind;
             if (dsu.find(u) != dsu.find(v)) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
                 dsu.unite(u, v);
                 mst.addEdge(e);
+                graphFrame.getGraphPanel().changeGraph(mst);
             }
         }
 
@@ -144,6 +167,14 @@ public class Christofides {
             }
         }
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
+        graphFrame.getGraphPanel().drawIntegerPath(G, eulerPath);
+
         return eulerPath;
     }
 
@@ -161,6 +192,14 @@ public class Christofides {
         }
 
         hamiltonianPath.add(G.getVertexByInd(G.getFinish()));
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
+        graphFrame.getGraphPanel().drawPath(G, hamiltonianPath);
 
         return hamiltonianPath;
     }
