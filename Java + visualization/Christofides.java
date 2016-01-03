@@ -10,7 +10,7 @@ public class Christofides {
 
     private void run() {
         RandomGraph randomGraph = new RandomGraph();
-        ArrayList<Vertex> vertices = randomGraph.randomVertices(100, 100.0);
+        ArrayList<Vertex> vertices = randomGraph.randomVertices(500, 100.0);
         Random random = new Random();
         int start = random.nextInt(vertices.size());
         int finish = start;
@@ -61,7 +61,7 @@ public class Christofides {
         return mst;
     }
 
-    private Graph findWrongVertices(Graph G) {
+    private ArrayList<Vertex> findWrongVertices(Graph G) {
         HashMap<Vertex, Integer> degree = new HashMap<>();
         ArrayList<Edge> edges = G.getEdges();
 
@@ -70,8 +70,8 @@ public class Christofides {
             degree.put(e.v, (degree.containsKey(e.v) ? degree.get(e.v) : 0) + 1);
         }
 
-        Graph wrong = new Graph();
         ArrayList<Vertex> vertices = G.getVertices();
+        ArrayList<Vertex> wrong = new ArrayList<>();
 
         for (Vertex v : vertices) {
             if (!degree.containsKey(v)) {
@@ -80,28 +80,26 @@ public class Christofides {
             int deg = degree.get(v);
             if (G.isStart(v) || G.isFinish(v)) {
                 if (deg % 2 == 0) {
-                    wrong.addVertex(v);
+                    wrong.add(v);
                 }
             } else {
                 if (deg % 2 == 1) {
-                    wrong.addVertex(v);
+                    wrong.add(v);
                 }
             }
         }
 
-        wrong.induce();
         return wrong;
     }
 
-    private Graph findPM(Graph G) {
+    private Graph findPM(ArrayList<Vertex> V) {
         Random random = new Random();
 
-        int k = (int)Math.ceil(Math.sqrt((double)G.getN()));
+        int k = (int)Math.ceil(Math.sqrt((double)V.size())) + V.size() / 10;
         double eps = (1 + 1.0 / k) * (1 + 1.0 / k);
 
-        ArrayList<Vertex> V = G.getVertices();
         ArrayList<Vertex> W = new ArrayList<>(V);
-        Graph PM = new Graph(G);
+        Graph PM = new Graph(V);
 
         for (int i = 0; i < k && !W.isEmpty(); ++i) {
             Vertex v = W.get(random.nextInt(W.size()));
@@ -120,7 +118,9 @@ public class Christofides {
         while (!W.isEmpty()) {
             Vertex v = W.get(random.nextInt(W.size()));
             Vertex u = Vertex.getNearest(v, W);
-            PM.addEdge(new Edge(u, v));
+            Edge e = new Edge(u, v);
+            PM.addEdge(e);
+            graphFrame.getGraphPanel().addEdge(e, Color.blue, false);
             W.remove(u);
             W.remove(v);
         }
